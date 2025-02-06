@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Troy's Implied Volatility Surface Visualizer</title>
+  <!-- Include Plotly JS library -->
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <!-- Load MathJax for rendering LaTeX formulas -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+  <style>
+    body { 
+      background-color: #121212; 
+      color: #e0e0e0; 
+      font-family: Arial, sans-serif; 
+      margin: 20px; 
+    }
+    h1, h2, h3 { color: #e0e0e0; }
+    form {
+      margin-bottom: 20px;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      margin-right: 10px;
+    }
+    input {
+      width: 200px;
+    }
+    button {
+      background-color: #0077cc;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005fa3;
+    }
+    /* Graph container styling */
+    .graph-container {
+      margin-bottom: 40px;
+    }
+    .graph-title {
+      margin-bottom: 10px;
+      font-size: 20px;
+      text-align: center;
+    }
+    .explanation {
+      margin-top: 20px;
+      padding: 20px;
+      background-color: #1e1e1e;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Troy's Implied Volatility Surface Visualizer</h1>
+  <form id="ticker-form">
+    <label for="ticker">Enter Ticker Symbol:</label>
+    <input type="text" id="ticker" name="ticker" placeholder="e.g., AAPL" required>
+    <button type="submit">Submit</button>
+  </form>
+
+  <!-- 3D Surface Graphs -->
+  <div class="graph-container">
+    <div class="graph-title">3D Implied Volatility Surface - Calls</div>
+    <div id="chart-calls" style="width:100%; height:600px;"></div>
+  </div>
+  <div class="graph-container">
+    <div class="graph-title">3D Implied Volatility Surface - Puts</div>
+    <div id="chart-puts" style="width:100%; height:600px;"></div>
+  </div>
+
+  <!-- 2D Volatility Smile Graphs -->
+  <div class="graph-container">
+    <div class="graph-title">2D Volatility Smile - Calls</div>
+    <div id="smile-chart-calls" style="width:100%; height:600px;"></div>
+  </div>
+  <div class="graph-container">
+    <div class="graph-title">2D Volatility Smile - Puts</div>
+    <div id="smile-chart-puts" style="width:100%; height:600px;"></div>
+  </div>
+
+  <div class="explanation">
+    <h2>What Is an Implied Volatility Surface?</h2>
+    <p>
+      The implied volatility (IV) surface visualizes the market's expectations of future volatility (expressed in percentage)
+      across different strike prices and days to expiration. For each option, we compute the IV by inverting the Black–Scholes model.
+      We treat call and put options separately.
+    </p>
+    <h3>Formulas and Methods Used</h3>
+    <p>
+      <strong>Black–Scholes Model for Calls:</strong>
+      <br>
+      \[
+      C = S \cdot N(d_1) - K \cdot e^{-rT} \cdot N(d_2)
+      \]
+      \[
+      d_1 = \frac{\ln(S/K) + \left(r + \frac{\sigma^2}{2}\right) T}{\sigma \sqrt{T}}, \quad d_2 = d_1 - \sigma \sqrt{T}
+      \]
+    </p>
+    <p>
+      <strong>Black–Scholes Model for Puts:</strong>
+      <br>
+      \[
+      P = K \cdot e^{-rT} \cdot N(-d_2) - S \cdot N(-d_1)
+      \]
+    </p>
+    <p>
+      <strong>Implied Volatility:</strong> We invert the respective Black–Scholes formula using Brent's method to solve for \(\sigma\) (volatility),
+      and then convert it to a percentage. (Note: For pricing purposes, time \(T\) is in years; however, the expiration is displayed in days.)
+    </p>
+    <h3>Additional Visualizations</h3>
+    <p>
+      <strong>3D Surface Graphs:</strong> Display the smooth IV surfaces for calls and puts separately.
+    </p>
+    <p>
+      <strong>2D Volatility Smile:</strong> Plots IV vs. strike price for options near the median expiration day.
+    </p>
+  </div>
+
+  <script>
+    document.getElementById('ticker-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var ticker = document.getElementById('ticker').value;
+      
+      var formData = new URLSearchParams();
+      formData.append('ticker', ticker);
+
+      fetch('/vol_surface', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData.toString()
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log("Data received from server:", data);
+        if(data.error) {
+          alert(data.error);
+          return;
+        }
+
+        // Compute axis ranges from the grid data to avoid auto–range artifacts (e.g. unwanted 0 ticks)
+        var minStrike = Math.min.apply(null, data.grid_x);
+        var maxStrike = Math.max.apply(null, data.grid_x);
+        var minDays = Math.min.apply(null, data.grid_y);
+        var maxDays = Math.max.apply(null, data.grid_y);
+
+        // -------------------------------
+        // 1. 3D Surface Plot for Calls
+        // -------------------------------
+        if(data.calls_Z) {
+          var traceCalls = {
+            x: data.grid_x,
+            y: data.grid_y,
+            z: data.calls_Z,
+            type: 'surface',
+            colorscale: 'Blues',
+            opacity: 0.9,
+            showscale: true,
+            colorbar: { title: 'Call IV (%)' }
+          };
+          var layoutCalls = {
+            title: "Calls: IV Surface for " + ticker.toUpperCase(),
+            paper_bgcolor: '#121212',
+            plot_bgcolor: '#121212',
+            font: { color: 'white' },
+            scene: {
+              xaxis: { title: 'Strike Price', color: 'white', gridcolor: '#333', range: [minStrike, maxStrike] },
+              yaxis: { title: 'Days to Expiration', color: 'white', gridcolor: '#333', range: [minDays, maxDays] },
+              zaxis: { title: 'IV (%)', color: 'white', gridcolor: '#333' },
+              bgcolor: '#121212'
+            }
+          };
+          Plotly.newPlot('chart-calls', [traceCalls], layoutCalls);
+        } else {
+          document.getElementById('chart-calls').innerHTML = "<p>No calls data available.</p>";
+        }
+
+        // -------------------------------
+        // 2. 3D Surface Plot for Puts
+        // -------------------------------
+        if(data.puts_Z) {
+          var tracePuts = {
+            x: data.grid_x,
+            y: data.grid_y,
+            z: data.puts_Z,
+            type: 'surface',
+            colorscale: 'Reds',
+            opacity: 0.9,
+            showscale: true,
+            colorbar: { title: 'Put IV (%)' }
+          };
+          var layoutPuts = {
+            title: "Puts: IV Surface for " + ticker.toUpperCase(),
+            paper_bgcolor: '#121212',
+            plot_bgcolor: '#121212',
+            font: { color: 'white' },
+            scene: {
+              xaxis: { title: 'Strike Price', color: 'white', gridcolor: '#333', range: [minStrike, maxStrike] },
+              yaxis: { title: 'Days to Expiration', color: 'white', gridcolor: '#333', range: [minDays, maxDays] },
+              zaxis: { title: 'IV (%)', color: 'white', gridcolor: '#333' },
+              bgcolor: '#121212'
+            }
+          };
+          Plotly.newPlot('chart-puts', [tracePuts], layoutPuts);
+        } else {
+          document.getElementById('chart-puts').innerHTML = "<p>No puts data available.</p>";
+        }
+
+        // -------------------------------
+        // 3. 2D Volatility Smile Plot for Calls
+        // -------------------------------
+        if(data.calls_time && data.calls_time.length > 0) {
+          // Determine median expiration for calls
+          var callsSorted = data.calls_time.slice().sort((a, b) => a - b);
+          var medianCalls = callsSorted[Math.floor(callsSorted.length / 2)];
+          var tolerance = 5; // days tolerance
+          var smileCalls_strike = [];
+          var smileCalls_iv = [];
+          for(var i = 0; i < data.calls_time.length; i++){
+            if(Math.abs(data.calls_time[i] - medianCalls) < tolerance){
+              smileCalls_strike.push(data.calls_strike[i]);
+              smileCalls_iv.push(data.calls_iv[i]);
+            }
+          }
+          var traceSmileCalls = {
+            x: smileCalls_strike,
+            y: smileCalls_iv,
+            mode: 'markers+lines',
+            marker: { size: 6, color: '#00ccff' },
+            line: { color: '#00ccff' },
+            type: 'scatter',
+            name: 'Calls'
+          };
+          var layoutSmileCalls = {
+            title: "Calls: Volatility Smile near " + medianCalls + " Days",
+            paper_bgcolor: '#121212',
+            plot_bgcolor: '#121212',
+            font: { color: 'white' },
+            xaxis: { title: 'Strike Price', color: 'white', gridcolor: '#333' },
+            yaxis: { title: 'IV (%)', color: 'white', gridcolor: '#333' }
+          };
+          Plotly.newPlot('smile-chart-calls', [traceSmileCalls], layoutSmileCalls);
+        } else {
+          document.getElementById('smile-chart-calls').innerHTML = "<p>No calls data available.</p>";
+        }
+
+        // -------------------------------
+        // 4. 2D Volatility Smile Plot for Puts
+        // -------------------------------
+        if(data.puts_time && data.puts_time.length > 0) {
+          // Determine median expiration for puts
+          var putsSorted = data.puts_time.slice().sort((a, b) => a - b);
+          var medianPuts = putsSorted[Math.floor(putsSorted.length / 2)];
+          var tolerance = 5; // days tolerance
+          var smilePuts_strike = [];
+          var smilePuts_iv = [];
+          for(var i = 0; i < data.puts_time.length; i++){
+            if(Math.abs(data.puts_time[i] - medianPuts) < tolerance){
+              smilePuts_strike.push(data.puts_strike[i]);
+              smilePuts_iv.push(data.puts_iv[i]);
+            }
+          }
+          var traceSmilePuts = {
+            x: smilePuts_strike,
+            y: smilePuts_iv,
+            mode: 'markers+lines',
+            marker: { size: 6, color: '#ff6600' },
+            line: { color: '#ff6600' },
+            type: 'scatter',
+            name: 'Puts'
+          };
+          var layoutSmilePuts = {
+            title: "Puts: Volatility Smile near " + medianPuts + " Days",
+            paper_bgcolor: '#121212',
+            plot_bgcolor: '#121212',
+            font: { color: 'white' },
+            xaxis: { title: 'Strike Price', color: 'white', gridcolor: '#333' },
+            yaxis: { title: 'IV (%)', color: 'white', gridcolor: '#333' }
+          };
+          Plotly.newPlot('smile-chart-puts', [traceSmilePuts], layoutSmilePuts);
+        } else {
+          document.getElementById('smile-chart-puts').innerHTML = "<p>No puts data available.</p>";
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    });
+  </script>
+</body>
+</html>
