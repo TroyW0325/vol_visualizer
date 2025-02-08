@@ -34,7 +34,7 @@
       cursor: pointer;
     }
     button:hover { background-color: #005fa3; }
-    .graph-container { margin-bottom: 40px; position: relative; }
+    .graph-container { margin-bottom: 40px; }
     .graph-title { margin-bottom: 10px; font-size: 20px; text-align: center; }
     .explanation { margin-top: 20px; padding: 20px; background-color: #1e1e1e; border-radius: 8px; }
     .section { margin-bottom: 30px; }
@@ -99,24 +99,24 @@
         \]
         where
         \[
-        d_1 = \frac{\ln(S/K) + \left(r + \frac{\sigma^2}{2}\right)T}{\sigma\sqrt{T}}, \quad d_2 = d_1 - \sigma\sqrt{T}
+        d_1 = \frac{\ln(S/K) + \left(r + \frac{\sigma^2}{2}\right) T}{\sigma \sqrt{T}}, \quad d_2 = d_1 - \sigma \sqrt{T}
         \]
       </p>
       <p>
-        \(S\) is the current stock price, \(K\) the strike price, \(T\) the time to expiration (in years), \(r\) the risk‑free rate, and \(\sigma\) the volatility. The <strong>implied volatility</strong> (IV) is the \(\sigma\) that aligns the model price with the market price.
+        Here, \(S\) is the current stock price, \(K\) is the strike price, \(T\) is time to expiration (in years), \(r\) is the risk‑free rate, and \(\sigma\) is the volatility. The <strong>implied volatility (IV)</strong> is the \(\sigma\) that makes the model price match the observed market price.
       </p>
     </div>
 
     <div class="section">
       <h2>Option Greeks</h2>
       <p>
-        The <strong>Greeks</strong> quantify the sensitivities of an option's price:
+        The <strong>Greeks</strong> measure the sensitivities of an option's price:
       </p>
       <ul>
-        <li><strong>Delta (\(\Delta\)):</strong> The rate of change in the option price per unit change in the underlying asset (Call: \(N(d_1)\); Put: \(N(d_1)-1\)).</li>
-        <li><strong>Gamma (\(\Gamma\)):</strong> The rate of change of Delta, given by \(\Gamma = \frac{N'(d_1)}{S\sigma\sqrt{T}}\).</li>
+        <li><strong>Delta (\(\Delta\)):</strong> The rate of change of the option price with respect to changes in the underlying asset's price. For a call: \(\Delta_{call} = N(d_1)\); for a put: \(\Delta_{put} = N(d_1)-1\).</li>
+        <li><strong>Gamma (\(\Gamma\)):</strong> The rate of change of Delta with respect to changes in the underlying price. \(\Gamma = \frac{N'(d_1)}{S\sigma\sqrt{T}}\).</li>
         <li><strong>Theta (\(\Theta\)):</strong> The sensitivity of the option price to the passage of time (time decay).</li>
-        <li><strong>Vega (\(V\)):</strong> The sensitivity to volatility changes, computed as \(Vega = S\sqrt{T} \cdot N'(d_1)\).</li>
+        <li><strong>Vega (\(V\)):</strong> The sensitivity of the option price to changes in volatility. \(Vega = S\sqrt{T} \cdot N'(d_1)\).</li>
         <li><strong>Rho (\(\rho\)):</strong> The sensitivity of the option price to changes in the risk‑free rate.</li>
       </ul>
     </div>
@@ -124,23 +124,26 @@
     <div class="section">
       <h2>Volatility Smile and Its Implications</h2>
       <p>
-        The <strong>volatility smile</strong> describes how IV tends to be higher for options deep in‑ or out‑of‑the‑money, reflecting market expectations of large price moves and uncertainty.
+        The <strong>volatility smile</strong> is the tendency for options far from the current price (either in‑ or out‑of‑the‑money) to have higher IV. High IV may indicate market uncertainty or expensive options, while low IV might suggest undervalued premiums.
       </p>
     </div>
 
     <div class="section">
       <h2>Common Options Trading Strategies &amp; Payoff Diagrams</h2>
       <p>
-        Traders use various strategies to profit under different market conditions. Here are a few:
+        Traders use various strategies to manage risk or capitalize on market views. Some common strategies include:
       </p>
       <ul>
         <li><strong>Long Straddle:</strong> Buy a call and a put at the same strike. Profits from large moves in either direction.</li>
-        <li><strong>Long Strangle:</strong> Buy an out‑of‑the‑money call and put. Lower cost than a straddle but requires a larger move.</li>
-        <li><strong>Bull Call Spread:</strong> Buy a call at a lower strike and sell a call at a higher strike. Profits moderately when the underlying rises.</li>
-        <li><strong>Bear Put Spread:</strong> Buy a put at a higher strike and sell a put at a lower strike. Profits moderately when the underlying falls.</li>
-        <li><strong>Butterfly Spread:</strong> Combine options at three strikes to profit if the underlying remains near the middle strike.</li>
+        <li><strong>Long Strangle:</strong> Buy an out‑of‑the‑money call and put with different strikes. Cheaper than a straddle but requires a bigger move.</li>
+        <li><strong>Bull Call Spread:</strong> Buy a call at a lower strike and sell a call at a higher strike, capping profit but reducing cost.</li>
+        <li><strong>Bear Put Spread:</strong> Buy a put at a higher strike and sell a put at a lower strike, profiting from a moderate decline.</li>
+        <li><strong>Butterfly Spread:</strong> Combine calls (or puts) at three strikes to profit if the underlying stays near the middle strike.</li>
       </ul>
-      <!-- Containers for payoff diagrams -->
+    </div>
+
+    <div class="section">
+      <h2>Payoff Diagrams for Common Options Trading Strategies</h2>
       <div id="payoff-straddle" style="width: 100%; height: 400px;"></div>
       <div id="payoff-strangle" style="width: 100%; height: 400px;"></div>
       <div id="payoff-bullcall" style="width: 100%; height: 400px;"></div>
@@ -150,23 +153,7 @@
   </div>
 
   <script>
-    // Global configuration objects for 3D charts
-    var config3DEnabled = { scrollZoom: true };
-    var config3DDisabled = { scrollZoom: false };
-
-    // Global variables to store chart data and layout for re-rendering
-    var traceCalls, layoutCalls, tracePuts, layoutPuts;
-
-    // Render the 3D chart for calls with the given config
-    function renderChartCalls(configVal) {
-      Plotly.newPlot('chart-calls', [traceCalls], layoutCalls, configVal);
-    }
-    // Render the 3D chart for puts with the given config
-    function renderChartPuts(configVal) {
-      Plotly.newPlot('chart-puts', [tracePuts], layoutPuts, configVal);
-    }
-
-    // Fetch IV surface data and render charts & smiles
+    // Fetch and render the IV surfaces and volatility smile charts
     document.getElementById('ticker-form').addEventListener('submit', function(e) {
       e.preventDefault();
       var ticker = document.getElementById('ticker').value;
@@ -182,7 +169,7 @@
       .then(data => {
         if(data.error) { alert(data.error); return; }
         
-        // Common axis ranges from the grid
+        // Compute common axis ranges from the grid data
         var minStrike = Math.min.apply(null, data.grid_x);
         var maxStrike = Math.max.apply(null, data.grid_x);
         var minDays = Math.min.apply(null, data.grid_y);
@@ -208,12 +195,11 @@
             scene: {
               xaxis: { title: 'Strike Price', color: 'white', gridcolor: '#333', range: [minStrike, maxStrike] },
               yaxis: { title: 'Days to Expiration', color: 'white', gridcolor: '#333', range: [minDays, maxDays] },
-              zaxis: { title: 'IV (%)', color: 'white', gridcolor: '#333' },
+              zaxis: { title: 'IV (%)', color: 'white', gridcolor: '#333', autorange: true },
               bgcolor: '#121212'
             }
           };
-          // Initially render with scrollZoom disabled
-          renderChartCalls(config3DDisabled);
+          Plotly.newPlot('chart-calls', [traceCalls], layoutCalls, config);
         } else {
           document.getElementById('chart-calls').innerHTML = "<p>No calls data available.</p>";
         }
@@ -238,17 +224,18 @@
             scene: {
               xaxis: { title: 'Strike Price', color: 'white', gridcolor: '#333', range: [minStrike, maxStrike] },
               yaxis: { title: 'Days to Expiration', color: 'white', gridcolor: '#333', range: [minDays, maxDays] },
-              zaxis: { title: 'IV (%)', color: 'white', gridcolor: '#333' },
+              zaxis: { title: 'IV (%)', color: 'white', gridcolor: '#333', autorange: true },
               bgcolor: '#121212'
             }
           };
-          renderChartPuts(config3DDisabled);
+          Plotly.newPlot('chart-puts', [tracePuts], layoutPuts, config);
         } else {
           document.getElementById('chart-puts').innerHTML = "<p>No puts data available.</p>";
         }
 
         // 2D Volatility Smile for Calls
         if(data.calls_time && data.calls_time.length > 0) {
+          // Use median expiration from calls (within a tolerance)
           var callsSorted = data.calls_time.slice().sort((a, b) => a - b);
           var medianCalls = callsSorted[Math.floor(callsSorted.length / 2)];
           var tolerance = 5; // days tolerance
@@ -317,23 +304,9 @@
       })
       .catch(error => { console.error('Error:', error); });
 
-    // Add event listeners to the zoom overlays for 3D charts
-    document.getElementById('zoom-overlay-calls').addEventListener('mouseenter', function() {
-      renderChartCalls(config3DEnabled);
-    });
-    document.getElementById('zoom-overlay-calls').addEventListener('mouseleave', function() {
-      renderChartCalls(config3DDisabled);
-    });
-    document.getElementById('zoom-overlay-puts').addEventListener('mouseenter', function() {
-      renderChartPuts(config3DEnabled);
-    });
-    document.getElementById('zoom-overlay-puts').addEventListener('mouseleave', function() {
-      renderChartPuts(config3DDisabled);
-    });
-
-    // Generate Payoff Diagrams for Options Trading Strategies
+    // Generate Payoff Diagrams for Common Options Trading Strategies
     function generatePayoffDiagrams() {
-      // Define an underlying price range
+      // Define an underlying price range and a set of strikes
       var x = [];
       for (var p = 50; p <= 150; p += 1) { x.push(p); }
 
@@ -423,7 +396,7 @@
       };
       Plotly.newPlot('payoff-bearput', [traceBear], layoutBear);
 
-      // Butterfly Spread (using calls: Buy 1 call at 90, Sell 2 calls at 100, Buy 1 call at 110)
+      // Butterfly Spread using Calls (Buy 1 call at 90, Sell 2 calls at 100, Buy 1 call at 110)
       var K1_butter = 90, K2_butter = 100, K3_butter = 110;
       var y_butter = x.map(function(price) {
         return Math.max(price - K1_butter, 0) - 2 * Math.max(price - K2_butter, 0) + Math.max(price - K3_butter, 0);
@@ -446,7 +419,7 @@
       Plotly.newPlot('payoff-butterfly', [traceButter], layoutButter);
     }
 
-    // Generate payoff diagrams when the page loads
+    // Generate payoff diagrams once the page loads
     document.addEventListener('DOMContentLoaded', generatePayoffDiagrams);
   </script>
 </body>

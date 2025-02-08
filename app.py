@@ -120,7 +120,7 @@ def vol_surface():
         nan_mask = np.isnan(calls_Z)
         if np.any(nan_mask):
             calls_Z[nan_mask] = griddata((calls_strikes, calls_times), calls_ivs, (X, Y), method='nearest')[nan_mask]
-        calls_Z = np.maximum(calls_Z, 0)
+        calls_Z = np.maximum(calls_Z, 0)  # ensure no negative volatility
         calls_Z_list = calls_Z.tolist()
     else:
         calls_Z_list = None
