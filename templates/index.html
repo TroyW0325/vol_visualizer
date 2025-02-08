@@ -4,30 +4,29 @@
   <meta charset="UTF-8">
   <title>Troy's Implied Volatility Surface Visualizer</title>
   
-  <!-- Include the Plotly JS library to render interactive graphs -->
+  <!-- Include Plotly for interactive charts -->
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   
-  <!-- Load Polyfill to support ES6 features in older browsers -->
+  <!-- Polyfill for ES6 support -->
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   
-  <!-- Load MathJax for rendering LaTeX formulas for mathematical expressions -->
+  <!-- MathJax for LaTeX rendering -->
   <script id="MathJax-script" async
     src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
   </script>
   
   <style>
-    /* Basic styling for the entire page */
+    /* Basic page styling */
     body { 
-      background-color: #121212; /* Dark background for a Bloomberg terminal feel */
-      color: #e0e0e0;            /* Light text color */
+      background-color: #121212; /* Dark background */
+      color: #e0e0e0;            /* Light text */
       font-family: Arial, sans-serif; 
       margin: 20px; 
       line-height: 1.6;
     }
-    /* Headings styling */
     h1, h2, h3, h4 { color: #e0e0e0; }
     
-    /* Styling for the form */
+    /* Form styling */
     form { margin-bottom: 20px; }
     input, button {
       padding: 10px;
@@ -44,10 +43,9 @@
     }
     button:hover { background-color: #005fa3; }
     
-    /* Styling for containers holding graphs */
-    /* Added max-width and auto margins to prevent horizontal scrolling on smaller screens */
+    /* Graph containers: max-width to avoid horizontal scrolling */
     .graph-container { 
-      margin-bottom: 40px;
+      margin-bottom: 40px; 
       max-width: 1000px; 
       margin-left: auto; 
       margin-right: auto;
@@ -58,7 +56,7 @@
       text-align: center;
     }
     
-    /* Styling for the explanation section (educational content) */
+    /* Explanation section styling */
     .explanation {
       margin-top: 20px;
       padding: 20px;
@@ -69,48 +67,43 @@
   </style>
 </head>
 <body>
-  <!-- Main page title -->
+  <!-- Page Header -->
   <h1>Troy's Implied Volatility Surface Visualizer</h1>
   
-  <!-- Ticker input form -->
+  <!-- Ticker Input Form -->
   <form id="ticker-form">
     <label for="ticker">Enter Ticker Symbol:</label>
     <input type="text" id="ticker" name="ticker" placeholder="e.g., AAPL" required>
     <button type="submit">Submit</button>
   </form>
 
-  <!-- Section for 3D IV surface graphs (Calls and Puts) -->
-  <!-- Increased the height to 700px (instead of 600px) to make them larger while keeping width at 100% (within max-width) -->
+  <!-- 3D IV Surface Graphs -->
   <div class="graph-container">
     <div class="graph-title">3D Implied Volatility Surface - Calls</div>
-    <!-- This div holds the 3D surface graph for call options -->
     <div id="chart-calls" style="width:100%; height:700px;"></div>
   </div>
   <div class="graph-container">
     <div class="graph-title">3D Implied Volatility Surface - Puts</div>
-    <!-- This div holds the 3D surface graph for put options -->
     <div id="chart-puts" style="width:100%; height:700px;"></div>
   </div>
 
-  <!-- Section for 2D Volatility Smile graphs -->
+  <!-- 2D Volatility Smile Graphs -->
   <div class="graph-container">
     <div class="graph-title">2D Volatility Smile - Calls</div>
-    <!-- This div holds the 2D volatility smile graph for calls -->
     <div id="smile-chart-calls" style="width:100%; height:600px;"></div>
   </div>
   <div class="graph-container">
     <div class="graph-title">2D Volatility Smile - Puts</div>
-    <!-- This div holds the 2D volatility smile graph for puts -->
     <div id="smile-chart-puts" style="width:100%; height:600px;"></div>
   </div>
 
   <!-- Professional Options Education Section -->
   <div class="explanation">
-    <!-- Section: Black–Scholes Model Explanation -->
+    <!-- Black–Scholes Model Explanation -->
     <div class="section">
       <h2>Options, Implied Volatility, and the Black–Scholes Model</h2>
       <p>
-        The <strong>Black–Scholes model</strong> is used to price European options. For a call option, the formula is:
+        The <strong>Black–Scholes model</strong> is used to price European options. For a call option:
       </p>
       <p>
         \[
@@ -122,69 +115,63 @@
         \]
       </p>
       <p>
-        Here, \(S\) is the current stock price, \(K\) is the strike price, \(T\) is the time to expiration (in years), \(r\) is the risk‑free interest rate, and \(\sigma\) is the volatility.
-      </p>
-      <p>
-        The implied volatility (IV) is the value of \(\sigma\) that, when substituted into the model, gives the observed market option price.
+        Here, \(S\) is the current stock price, \(K\) is the strike price, \(T\) is time to expiration (in years), \(r\) is the risk‑free rate, and \(\sigma\) is the volatility. The implied volatility (IV) is the value of \(\sigma\) that, when substituted into the model, gives the observed market price.
       </p>
     </div>
 
-    <!-- Section: Option Greeks Explanation -->
+    <!-- Option Greeks Explanation -->
     <div class="section">
       <h2>Option Greeks</h2>
       <p>
-        The <strong>Greeks</strong> measure the sensitivity of an option's price to various factors:
+        The <strong>Greeks</strong> quantify the sensitivities of an option's price:
       </p>
       <ul>
         <li>
           <strong>Delta (\(\Delta\)):</strong> The rate of change of the option price with respect to changes in the underlying asset's price.  
-          For a call: \(\Delta_{call} = N(d_1)\); for a put: \(\Delta_{put} = N(d_1)-1\).
+          (Call: \(\Delta_{call} = N(d_1)\); Put: \(\Delta_{put} = N(d_1)-1\))
         </li>
         <li>
           <strong>Gamma (\(\Gamma\)):</strong> The rate of change of Delta with respect to changes in the underlying price.  
           \(\Gamma = \frac{N'(d_1)}{S\sigma\sqrt{T}}\)
         </li>
         <li>
-          <strong>Theta (\(\Theta\)):</strong> The sensitivity of the option price to the passage of time (time decay).
+          <strong>Theta (\(\Theta\)):</strong> The sensitivity of the option price to time decay.
         </li>
         <li>
-          <strong>Vega (\(V\)):</strong> The sensitivity of the option price to changes in volatility.  
+          <strong>Vega (\(V\)):</strong> The sensitivity to volatility changes.  
           \(Vega = S\sqrt{T} \cdot N'(d_1)\)
         </li>
         <li>
-          <strong>Rho (\(\rho\)):</strong> The sensitivity of the option price to changes in the risk‑free interest rate.
+          <strong>Rho (\(\rho\)):</strong> The sensitivity to changes in the risk‑free rate.
         </li>
       </ul>
     </div>
 
-    <!-- Section: Volatility Smile Explanation -->
+    <!-- Volatility Smile Explanation -->
     <div class="section">
       <h2>Volatility Smile and Its Implications</h2>
       <p>
-        The <strong>volatility smile</strong> is a pattern in which options with strike prices far from the current price tend to have higher implied volatilities. This phenomenon suggests that the market expects larger moves in the underlying asset for these options.
+        The <strong>volatility smile</strong> is a pattern in which options with strike prices far from the current price tend to have higher IV. This suggests that the market anticipates larger moves in the underlying asset.
       </p>
       <p>
-        <strong>High implied volatility</strong> can indicate uncertainty or risk in the market, but it may also signal that options are relatively expensive. Conversely, low implied volatility might suggest lower expected movement but can also signal undervalued options.
+        High IV may indicate market uncertainty (and expensive options), while low IV might suggest lower expected movement or undervalued premiums.
       </p>
     </div>
 
-    <!-- Section: Common Options Trading Strategies and Payoff Diagrams -->
+    <!-- Common Options Trading Strategies & Payoff Diagrams -->
     <div class="section">
       <h2>Common Options Trading Strategies &amp; Payoff Diagrams</h2>
       <p>
-        Traders use various strategies to manage risk and profit from market views. Some common strategies include:
+        Below are some common strategies along with their payoff diagrams. For each strategy, the individual legs’ payoffs are shown as light gray dotted lines, and the net payoff (after subtracting a hypothetical premium) is displayed in a distinct color. All diagrams use the same x‑axis ([50,150]) and y‑axis (–15 to 55) scales.
       </p>
       <ul>
-        <li><strong>Long Straddle:</strong> Buying a call and a put with the same strike and expiration. Profits from large moves in either direction.</li>
-        <li><strong>Long Strangle:</strong> Buying an out-of-the-money call and put. Cheaper than a straddle but requires a larger move.</li>
-        <li><strong>Bull Call Spread:</strong> Buying a call at a lower strike and selling a call at a higher strike. Profits if the price rises moderately.</li>
-        <li><strong>Bear Put Spread:</strong> Buying a put at a higher strike and selling a put at a lower strike. Profits if the price falls moderately.</li>
-        <li><strong>Butterfly Spread:</strong> Combining multiple calls or puts to profit from low volatility; has limited risk and reward.</li>
+        <li><strong>Long Straddle:</strong> Buy a call and a put at the same strike (assumed total premium = 10).</li>
+        <li><strong>Long Strangle:</strong> Buy an out‑of‑the‑money call and put (assumed total premium = 10).</li>
+        <li><strong>Bull Call Spread:</strong> Buy a call at a lower strike and sell a call at a higher strike (assumed net premium = 3).</li>
+        <li><strong>Bear Put Spread:</strong> Buy a put at a higher strike and sell a put at a lower strike (assumed net premium = 3).</li>
+        <li><strong>Butterfly Spread:</strong> Combine calls (buy 1 at 90, sell 2 at 100, buy 1 at 110) (assumed net premium = 1).</li>
       </ul>
-      <p>
-        Each strategy has a unique payoff profile. For example, a long straddle's payoff diagram resembles a "V" shape, while a bull call spread’s payoff is capped.
-      </p>
-      <!-- Payoff diagram containers -->
+      <!-- Containers for payoff diagrams -->
       <div id="payoff-straddle" style="width: 100%; height: 500px;"></div>
       <div id="payoff-strangle" style="width: 100%; height: 500px;"></div>
       <div id="payoff-bullcall" style="width: 100%; height: 500px;"></div>
@@ -194,15 +181,15 @@
   </div>
 
   <script>
-    // JavaScript code to fetch IV surface data and render the graphs
+    // JavaScript code to fetch IV surface data and render 3D and 2D graphs
 
     document.getElementById('ticker-form').addEventListener('submit', function(e) {
-      e.preventDefault();  // Prevent the form from reloading the page
+      e.preventDefault();
       var ticker = document.getElementById('ticker').value;
       var formData = new URLSearchParams();
       formData.append('ticker', ticker);
 
-      // Fetch IV surface data from the /vol_surface endpoint
+      // Fetch IV surface data from the server endpoint /vol_surface
       fetch('/vol_surface', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -210,12 +197,9 @@
       })
       .then(response => response.json())
       .then(data => {
-        if(data.error) { 
-          alert(data.error); 
-          return; 
-        }
+        if(data.error) { alert(data.error); return; }
         
-        // Calculate common axis ranges for the 3D charts
+        // Compute common axis ranges for 3D graphs
         var minStrike = Math.min.apply(null, data.grid_x);
         var maxStrike = Math.max.apply(null, data.grid_x);
         var minDays = Math.min.apply(null, data.grid_y);
@@ -241,7 +225,7 @@
             scene: {
               xaxis: { title: 'Strike Price', color: 'white', gridcolor: '#333', range: [minStrike, maxStrike] },
               yaxis: { title: 'Days to Expiration', color: 'white', gridcolor: '#333', range: [minDays, maxDays] },
-              zaxis: { title: 'IV (%)', color: 'white', gridcolor: '#333', autorange: true },
+              zaxis: { title: 'IV (%)', color: 'white', gridcolor: '#333' },
               bgcolor: '#121212'
             }
           };
@@ -270,7 +254,7 @@
             scene: {
               xaxis: { title: 'Strike Price', color: 'white', gridcolor: '#333', range: [minStrike, maxStrike] },
               yaxis: { title: 'Days to Expiration', color: 'white', gridcolor: '#333', range: [minDays, maxDays] },
-              zaxis: { title: 'IV (%)', color: 'white', gridcolor: '#333', autorange: true },
+              zaxis: { title: 'IV (%)', color: 'white', gridcolor: '#333' },
               bgcolor: '#121212'
             }
           };
@@ -283,7 +267,7 @@
         if(data.calls_time && data.calls_time.length > 0) {
           var callsSorted = data.calls_time.slice().sort((a, b) => a - b);
           var medianCalls = callsSorted[Math.floor(callsSorted.length / 2)];
-          var tolerance = 5; // days tolerance
+          var tolerance = 5;
           var smileCalls_strike = [], smileCalls_iv = [];
           for(var i = 0; i < data.calls_time.length; i++){
             if(Math.abs(data.calls_time[i] - medianCalls) < tolerance){
@@ -305,8 +289,8 @@
             paper_bgcolor: '#121212',
             plot_bgcolor: '#121212',
             font: { color: 'white' },
-            xaxis: { title: 'Strike Price', color: 'white', gridcolor: '#333' },
-            yaxis: { title: 'IV (%)', color: 'white', gridcolor: '#333' }
+            xaxis: { title: 'Strike Price', color: 'white', gridcolor: '#333', range: [50,150] },
+            yaxis: { title: 'IV (%)', color: 'white', gridcolor: '#333', range: [-15,55] }
           };
           Plotly.newPlot('smile-chart-calls', [traceSmileCalls], layoutSmileCalls);
         } else {
@@ -317,7 +301,7 @@
         if(data.puts_time && data.puts_time.length > 0) {
           var putsSorted = data.puts_time.slice().sort((a, b) => a - b);
           var medianPuts = putsSorted[Math.floor(putsSorted.length / 2)];
-          var tolerance = 5; // days tolerance
+          var tolerance = 5;
           var smilePuts_strike = [], smilePuts_iv = [];
           for(var i = 0; i < data.puts_time.length; i++){
             if(Math.abs(data.puts_time[i] - medianPuts) < tolerance){
@@ -339,8 +323,8 @@
             paper_bgcolor: '#121212',
             plot_bgcolor: '#121212',
             font: { color: 'white' },
-            xaxis: { title: 'Strike Price', color: 'white', gridcolor: '#333' },
-            yaxis: { title: 'IV (%)', color: 'white', gridcolor: '#333' }
+            xaxis: { title: 'Strike Price', color: 'white', gridcolor: '#333', range: [50,150] },
+            yaxis: { title: 'IV (%)', color: 'white', gridcolor: '#333', range: [-15,55] }
           };
           Plotly.newPlot('smile-chart-puts', [traceSmilePuts], layoutSmilePuts);
         } else {
@@ -350,122 +334,216 @@
       .catch(error => { console.error('Error:', error); });
     });
 
-    // Generate Payoff Diagrams for Common Options Trading Strategies
+    // Generate Payoff Diagrams for Options Trading Strategies with Leg Payoffs
     function generatePayoffDiagrams() {
-      // Define an underlying price range
+      // Define a common underlying price range and common axis scales
       var x = [];
       for (var p = 50; p <= 150; p += 1) { x.push(p); }
+      var xRange = [50, 150];
+      var yRange = [-15, 55]; // Common y-axis for all payoff diagrams
 
-      // Long Straddle (Strike = 100)
+      /* === Long Straddle === */
+      // Parameters
       var K_straddle = 100;
-      var y_straddle = x.map(function(price) { return Math.abs(price - K_straddle); });
-      var traceStraddle = {
+      var premium_straddle = 10;
+      // Leg payoffs:
+      var call_payoff_straddle = x.map(function(price) { return Math.max(price - K_straddle, 0); });
+      var put_payoff_straddle = x.map(function(price) { return Math.max(K_straddle - price, 0); });
+      // Net payoff = call + put - premium
+      var net_payoff_straddle = x.map(function(price, i) { 
+        return call_payoff_straddle[i] + put_payoff_straddle[i] - premium_straddle; 
+      });
+      // Traces for each leg (light gray dashed lines)
+      var traceCallLeg = {
         x: x,
-        y: y_straddle,
+        y: call_payoff_straddle,
+        mode: 'lines',
+        line: { color: '#cccccc', dash: 'dot' },
+        name: 'Call Leg'
+      };
+      var tracePutLeg = {
+        x: x,
+        y: put_payoff_straddle,
+        mode: 'lines',
+        line: { color: '#cccccc', dash: 'dot' },
+        name: 'Put Leg'
+      };
+      // Net payoff trace (distinct color)
+      var traceNetStraddle = {
+        x: x,
+        y: net_payoff_straddle,
         mode: 'lines',
         line: { color: '#00ccff' },
-        name: 'Long Straddle'
+        name: 'Net Payoff'
       };
       var layoutStraddle = {
-        title: "Long Straddle Payoff (Strike = " + K_straddle + ")",
-        xaxis: { title: 'Underlying Price' },
-        yaxis: { title: 'Payoff' },
+        title: "Long Straddle Payoff (Strike = " + K_straddle + ", Premium = " + premium_straddle + ")",
+        xaxis: { title: 'Underlying Price', range: xRange },
+        yaxis: { title: 'Net Payoff', range: yRange },
         paper_bgcolor: '#121212',
         plot_bgcolor: '#121212',
         font: { color: 'white' }
       };
-      Plotly.newPlot('payoff-straddle', [traceStraddle], layoutStraddle);
+      Plotly.newPlot('payoff-straddle', [traceCallLeg, tracePutLeg, traceNetStraddle], layoutStraddle);
 
-      // Long Strangle (K1 = 90, K2 = 110)
+      /* === Long Strangle === */
       var K1_strangle = 90, K2_strangle = 110;
-      var y_strangle = x.map(function(price) {
-        return Math.max(K1_strangle - price, 0) + Math.max(price - K2_strangle, 0);
-      });
-      var traceStrangle = {
+      var premium_strangle = 10;
+      var call_payoff_strangle = x.map(function(price) { return Math.max(price - K2_strangle, 0); });
+      var put_payoff_strangle = x.map(function(price) { return Math.max(K1_strangle - price, 0); });
+      var net_payoff_strangle = x.map(function(price, i) { return call_payoff_strangle[i] + put_payoff_strangle[i] - premium_strangle; });
+      var traceCallStrangle = {
         x: x,
-        y: y_strangle,
+        y: call_payoff_strangle,
+        mode: 'lines',
+        line: { color: '#cccccc', dash: 'dot' },
+        name: 'Call Leg'
+      };
+      var tracePutStrangle = {
+        x: x,
+        y: put_payoff_strangle,
+        mode: 'lines',
+        line: { color: '#cccccc', dash: 'dot' },
+        name: 'Put Leg'
+      };
+      var traceNetStrangle = {
+        x: x,
+        y: net_payoff_strangle,
         mode: 'lines',
         line: { color: '#ffcc00' },
-        name: 'Long Strangle'
+        name: 'Net Payoff'
       };
       var layoutStrangle = {
-        title: "Long Strangle Payoff (K1 = " + K1_strangle + ", K2 = " + K2_strangle + ")",
-        xaxis: { title: 'Underlying Price' },
-        yaxis: { title: 'Payoff' },
+        title: "Long Strangle Payoff (K1 = " + K1_strangle + ", K2 = " + K2_strangle + ", Premium = " + premium_strangle + ")",
+        xaxis: { title: 'Underlying Price', range: xRange },
+        yaxis: { title: 'Net Payoff', range: yRange },
         paper_bgcolor: '#121212',
         plot_bgcolor: '#121212',
         font: { color: 'white' }
       };
-      Plotly.newPlot('payoff-strangle', [traceStrangle], layoutStrangle);
+      Plotly.newPlot('payoff-strangle', [traceCallStrangle, tracePutStrangle, traceNetStrangle], layoutStrangle);
 
-      // Bull Call Spread (Buy call at 95, Sell call at 105)
+      /* === Bull Call Spread === */
       var K1_bull = 95, K2_bull = 105;
-      var y_bull = x.map(function(price) {
-        return Math.max(price - K1_bull, 0) - Math.max(price - K2_bull, 0);
-      });
-      var traceBull = {
+      var netPremium_bull = 3;
+      var call_buy_payoff = x.map(function(price) { return Math.max(price - K1_bull, 0); });
+      var call_sell_payoff = x.map(function(price) { return -Math.max(price - K2_bull, 0); });
+      var net_payoff_bull = x.map(function(price, i) { return call_buy_payoff[i] + call_sell_payoff[i] - netPremium_bull; });
+      var traceBuyCall = {
         x: x,
-        y: y_bull,
+        y: call_buy_payoff,
+        mode: 'lines',
+        line: { color: '#cccccc', dash: 'dot' },
+        name: 'Buy Call (95)'
+      };
+      var traceSellCall = {
+        x: x,
+        y: call_sell_payoff,
+        mode: 'lines',
+        line: { color: '#cccccc', dash: 'dot' },
+        name: 'Sell Call (105)'
+      };
+      var traceNetBull = {
+        x: x,
+        y: net_payoff_bull,
         mode: 'lines',
         line: { color: '#00ff00' },
-        name: 'Bull Call Spread'
+        name: 'Net Payoff'
       };
       var layoutBull = {
-        title: "Bull Call Spread Payoff (Buy at " + K1_bull + ", Sell at " + K2_bull + ")",
-        xaxis: { title: 'Underlying Price' },
-        yaxis: { title: 'Payoff' },
+        title: "Bull Call Spread Payoff (Buy at " + K1_bull + ", Sell at " + K2_bull + ", Premium = " + netPremium_bull + ")",
+        xaxis: { title: 'Underlying Price', range: xRange },
+        yaxis: { title: 'Net Payoff', range: yRange },
         paper_bgcolor: '#121212',
         plot_bgcolor: '#121212',
         font: { color: 'white' }
       };
-      Plotly.newPlot('payoff-bullcall', [traceBull], layoutBull);
+      Plotly.newPlot('payoff-bullcall', [traceBuyCall, traceSellCall, traceNetBull], layoutBull);
 
-      // Bear Put Spread (Buy put at 105, Sell put at 95)
+      /* === Bear Put Spread === */
       var K1_bear = 105, K2_bear = 95;
-      var y_bear = x.map(function(price) {
-        return Math.max(K1_bear - price, 0) - Math.max(K2_bear - price, 0);
-      });
-      var traceBear = {
+      var netPremium_bear = 3;
+      var put_buy_payoff = x.map(function(price) { return Math.max(K1_bear - price, 0); });
+      var put_sell_payoff = x.map(function(price) { return -Math.max(K2_bear - price, 0); });
+      var net_payoff_bear = x.map(function(price, i) { return put_buy_payoff[i] + put_sell_payoff[i] - netPremium_bear; });
+      var traceBuyPut = {
         x: x,
-        y: y_bear,
+        y: put_buy_payoff,
+        mode: 'lines',
+        line: { color: '#cccccc', dash: 'dot' },
+        name: 'Buy Put (105)'
+      };
+      var traceSellPut = {
+        x: x,
+        y: put_sell_payoff,
+        mode: 'lines',
+        line: { color: '#cccccc', dash: 'dot' },
+        name: 'Sell Put (95)'
+      };
+      var traceNetBear = {
+        x: x,
+        y: net_payoff_bear,
         mode: 'lines',
         line: { color: '#ff0000' },
-        name: 'Bear Put Spread'
+        name: 'Net Payoff'
       };
       var layoutBear = {
-        title: "Bear Put Spread Payoff (Buy at " + K1_bear + ", Sell at " + K2_bear + ")",
-        xaxis: { title: 'Underlying Price' },
-        yaxis: { title: 'Payoff' },
+        title: "Bear Put Spread Payoff (Buy at " + K1_bear + ", Sell at " + K2_bear + ", Premium = " + netPremium_bear + ")",
+        xaxis: { title: 'Underlying Price', range: xRange },
+        yaxis: { title: 'Net Payoff', range: yRange },
         paper_bgcolor: '#121212',
         plot_bgcolor: '#121212',
         font: { color: 'white' }
       };
-      Plotly.newPlot('payoff-bearput', [traceBear], layoutBear);
+      Plotly.newPlot('payoff-bearput', [traceBuyPut, traceSellPut, traceNetBear], layoutBear);
 
-      // Butterfly Spread (using calls: Buy 1 call at 90, Sell 2 calls at 100, Buy 1 call at 110)
+      /* === Butterfly Spread === */
       var K1_butter = 90, K2_butter = 100, K3_butter = 110;
-      var y_butter = x.map(function(price) {
-        return Math.max(price - K1_butter, 0) - 2 * Math.max(price - K2_butter, 0) + Math.max(price - K3_butter, 0);
-      });
-      var traceButter = {
+      var netPremium_butter = 1;
+      var leg1 = x.map(function(price) { return Math.max(price - K1_butter, 0); });
+      var leg2 = x.map(function(price) { return -2 * Math.max(price - K2_butter, 0); });
+      var leg3 = x.map(function(price) { return Math.max(price - K3_butter, 0); });
+      var net_payoff_butter = x.map(function(price, i) { return leg1[i] + leg2[i] + leg3[i] - netPremium_butter; });
+      var traceLeg1 = {
         x: x,
-        y: y_butter,
+        y: leg1,
+        mode: 'lines',
+        line: { color: '#cccccc', dash: 'dot' },
+        name: 'Buy Call (90)'
+      };
+      var traceLeg2 = {
+        x: x,
+        y: leg2,
+        mode: 'lines',
+        line: { color: '#cccccc', dash: 'dot' },
+        name: 'Sell 2 Calls (100)'
+      };
+      var traceLeg3 = {
+        x: x,
+        y: leg3,
+        mode: 'lines',
+        line: { color: '#cccccc', dash: 'dot' },
+        name: 'Buy Call (110)'
+      };
+      var traceNetButter = {
+        x: x,
+        y: net_payoff_butter,
         mode: 'lines',
         line: { color: '#ff66cc' },
-        name: 'Butterfly Spread'
+        name: 'Net Payoff'
       };
       var layoutButter = {
-        title: "Butterfly Spread Payoff (K1 = " + K1_butter + ", K2 = " + K2_butter + ", K3 = " + K3_butter + ")",
-        xaxis: { title: 'Underlying Price' },
-        yaxis: { title: 'Payoff' },
+        title: "Butterfly Spread Payoff (K1 = " + K1_butter + ", K2 = " + K2_butter + ", K3 = " + K3_butter + ", Premium = " + netPremium_butter + ")",
+        xaxis: { title: 'Underlying Price', range: xRange },
+        yaxis: { title: 'Net Payoff', range: yRange },
         paper_bgcolor: '#121212',
         plot_bgcolor: '#121212',
         font: { color: 'white' }
       };
-      Plotly.newPlot('payoff-butterfly', [traceButter], layoutButter);
+      Plotly.newPlot('payoff-butterfly', [traceLeg1, traceLeg2, traceLeg3, traceNetButter], layoutButter);
     }
 
-    // Generate payoff diagrams once the page loads
+    // Generate payoff diagrams when the page loads
     document.addEventListener('DOMContentLoaded', generatePayoffDiagrams);
   </script>
 </body>
