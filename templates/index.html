@@ -470,4 +470,89 @@
       // Assumptions: Buy put at 105 with premium = 7, Sell put at 95 with premium = 4
       var K1_bear = 105, K2_bear = 95;
       var premium_buy_put = 7, premium_sell_put = 4;
-      var leg_buy_put = x.map(function(price) { return Math.max(K1_bear - price, 0) - premium_buy
+      var leg_buy_put = x.map(function(price) { return Math.max(K1_bear - price, 0) - premium_buy_put; });
+      var leg_sell_put = x.map(function(price) { return - (Math.max(K2_bear - price, 0) - premium_sell_put); });
+      var net_bear = x.map(function(price, i) { return leg_buy_put[i] + leg_sell_put[i]; });
+      var traceBuyPut = {
+        x: x,
+        y: leg_buy_put,
+        mode: 'lines',
+        line: { color: '#cccccc', dash: 'dot' },
+        name: 'Buy Put (105, net)'
+      };
+      var traceSellPut = {
+        x: x,
+        y: leg_sell_put,
+        mode: 'lines',
+        line: { color: '#cccccc', dash: 'dot' },
+        name: 'Sell Put (95, net)'
+      };
+      var traceNetBear = {
+        x: x,
+        y: net_bear,
+        mode: 'lines',
+        line: { color: '#ff0000' },
+        name: 'Total Net Payoff'
+      };
+      var layoutBear = {
+        title: "Bear Put Spread Payoff (Buy at " + K1_bear + ", Sell at " + K2_bear + ")",
+        xaxis: { title: 'Underlying Price', range: xRange },
+        yaxis: { title: 'Net Payoff', range: yRange },
+        paper_bgcolor: '#121212',
+        plot_bgcolor: '#121212',
+        font: { color: 'white' }
+      };
+      Plotly.newPlot('payoff-bearput', [traceBuyPut, traceSellPut, traceNetBear], layoutBear);
+
+      /* === Butterfly Spread === */
+      // Assumptions: Using calls, Buy 1 at 90 (premium = 2), Sell 2 at 100 (premium = 1.5 each), Buy 1 at 110 (premium = 2)
+      var K1_butter = 90, K2_butter = 100, K3_butter = 110;
+      var premium_buy1 = 2, premium_sell_each = 1.5, premium_buy2 = 2;
+      var leg1 = x.map(function(price) { return Math.max(price - K1_butter, 0) - premium_buy1; });
+      var leg2 = x.map(function(price) { return -2 * (Math.max(price - K2_butter, 0) - premium_sell_each); });
+      var leg3 = x.map(function(price) { return Math.max(price - K3_butter, 0) - premium_buy2; });
+      var net_butter = x.map(function(price, i) { return leg1[i] + leg2[i] + leg3[i]; });
+      var traceLeg1 = {
+        x: x,
+        y: leg1,
+        mode: 'lines',
+        line: { color: '#cccccc', dash: 'dot' },
+        name: 'Buy Call (90, net)'
+      };
+      var traceLeg2 = {
+        x: x,
+        y: leg2,
+        mode: 'lines',
+        line: { color: '#cccccc', dash: 'dot' },
+        name: 'Sell 2 Calls (100, net)'
+      };
+      var traceLeg3 = {
+        x: x,
+        y: leg3,
+        mode: 'lines',
+        line: { color: '#cccccc', dash: 'dot' },
+        name: 'Buy Call (110, net)'
+      };
+      var traceNetButter = {
+        x: x,
+        y: net_butter,
+        mode: 'lines',
+        line: { color: '#ff66cc' },
+        name: 'Total Net Payoff'
+      };
+      var layoutButter = {
+        title: "Butterfly Spread Payoff (K1 = " + K1_butter + ", K2 = " + K2_butter + ", K3 = " + K3_butter + ")",
+        xaxis: { title: 'Underlying Price', range: xRange },
+        yaxis: { title: 'Net Payoff', range: yRange },
+        paper_bgcolor: '#121212',
+        plot_bgcolor: '#121212',
+        font: { color: 'white' }
+      };
+      Plotly.newPlot('payoff-butterfly', [traceLeg1, traceLeg2, traceLeg3, traceNetButter], layoutButter);
+    }
+
+    // Generate payoff diagrams once the page loads
+    document.addEventListener('DOMContentLoaded', generatePayoffDiagrams);
+  </script>
+</body>
+</html>
