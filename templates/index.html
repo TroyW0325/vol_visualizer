@@ -16,11 +16,10 @@
       color: #e0e0e0; 
       font-family: Arial, sans-serif; 
       margin: 20px; 
+      line-height: 1.6;
     }
-    h1, h2, h3 { color: #e0e0e0; }
-    form {
-      margin-bottom: 20px;
-    }
+    h1, h2, h3, h4 { color: #e0e0e0; }
+    form { margin-bottom: 20px; }
     input, button {
       padding: 10px;
       font-size: 16px;
@@ -28,21 +27,14 @@
       border-radius: 4px;
       margin-right: 10px;
     }
-    input {
-      width: 200px;
-    }
+    input { width: 200px; }
     button {
       background-color: #0077cc;
       color: white;
       cursor: pointer;
     }
-    button:hover {
-      background-color: #005fa3;
-    }
-    /* Graph container styling */
-    .graph-container {
-      margin-bottom: 40px;
-    }
+    button:hover { background-color: #005fa3; }
+    .graph-container { margin-bottom: 40px; }
     .graph-title {
       margin-bottom: 10px;
       font-size: 20px;
@@ -54,6 +46,7 @@
       background-color: #1e1e1e;
       border-radius: 8px;
     }
+    .section { margin-bottom: 30px; }
   </style>
 </head>
 <body>
@@ -84,49 +77,99 @@
     <div id="smile-chart-puts" style="width:100%; height:600px;"></div>
   </div>
 
+  <!-- Professional Options Education Section -->
   <div class="explanation">
-    <h2>What Is an Implied Volatility Surface?</h2>
-    <p>
-      The implied volatility (IV) surface visualizes the market's expectations of future volatility (expressed in percentage)
-      across different strike prices and days to expiration. For each option, we compute the IV by inverting the Black–Scholes model.
-      We treat call and put options separately.
-    </p>
-    <h3>Formulas and Methods Used</h3>
-    <p>
-      <strong>Black–Scholes Model for Calls:</strong>
-      <br>
-      \[
-      C = S \cdot N(d_1) - K \cdot e^{-rT} \cdot N(d_2)
-      \]
-      \[
-      d_1 = \frac{\ln(S/K) + \left(r + \frac{\sigma^2}{2}\right) T}{\sigma \sqrt{T}}, \quad d_2 = d_1 - \sigma \sqrt{T}
-      \]
-    </p>
-    <p>
-      <strong>Black–Scholes Model for Puts:</strong>
-      <br>
-      \[
-      P = K \cdot e^{-rT} \cdot N(-d_2) - S \cdot N(-d_1)
-      \]
-    </p>
-    <p>
-      <strong>Implied Volatility:</strong> We invert the respective Black–Scholes formula using Brent's method to solve for \(\sigma\) (volatility),
-      and then convert it to a percentage. (Note: For pricing purposes, time \(T\) is in years; however, the expiration is displayed in days.)
-    </p>
-    <h3>Additional Visualizations</h3>
-    <p>
-      <strong>3D Surface Graphs:</strong> Display the smooth IV surfaces for calls and puts separately.
-    </p>
-    <p>
-      <strong>2D Volatility Smile:</strong> Plots IV vs. strike price for options near the median expiration day.
-    </p>
+    <div class="section">
+      <h2>Options, Implied Volatility, and the Black–Scholes Model</h2>
+      <p>
+        The <strong>Black–Scholes model</strong> is used to price European options. For a call option, the formula is:
+      </p>
+      <p>
+        \[
+        C = S \cdot N(d_1) - K \cdot e^{-rT} \cdot N(d_2)
+        \]
+        with
+        \[
+        d_1 = \frac{\ln(S/K) + (r + \frac{\sigma^2}{2})T}{\sigma\sqrt{T}}, \quad d_2 = d_1 - \sigma\sqrt{T}
+        \]
+      </p>
+      <p>
+        Here, \(S\) is the current stock price, \(K\) is the strike price, \(T\) is the time to expiration (in years), \(r\) is the risk-free interest rate, and \(\sigma\) is the volatility.
+      </p>
+      <p>
+        The implied volatility (IV) is the value of \(\sigma\) that, when substituted into the model, gives the observed market option price.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>Option Greeks</h2>
+      <p>
+        The <strong>Greeks</strong> measure the sensitivity of an option's price to various factors:
+      </p>
+      <ul>
+        <li>
+          <strong>Delta (\(\Delta\)):</strong> The rate of change of the option price with respect to changes in the underlying asset's price.  
+          For a call: \(\Delta_{call} = N(d_1)\); for a put: \(\Delta_{put} = N(d_1)-1\).
+        </li>
+        <li>
+          <strong>Gamma (\(\Gamma\)):</strong> The rate of change of Delta with respect to changes in the underlying price.  
+          \(\Gamma = \frac{N'(d_1)}{S\sigma\sqrt{T}}\)
+        </li>
+        <li>
+          <strong>Theta (\(\Theta\)):</strong> The sensitivity of the option price to the passage of time (time decay).
+        </li>
+        <li>
+          <strong>Vega (\(V\)):</strong> The sensitivity of the option price to changes in volatility.  
+          \(Vega = S\sqrt{T} \cdot N'(d_1)\)
+        </li>
+        <li>
+          <strong>Rho (\(\rho\)):</strong> The sensitivity of the option price to changes in the risk-free interest rate.
+        </li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>Volatility Smile and Its Implications</h2>
+      <p>
+        The <strong>volatility smile</strong> is a pattern in which options with strike prices far from the current price tend to have higher implied volatilities. This phenomenon suggests that the market expects larger moves in the underlying asset for these options.
+      </p>
+      <p>
+        <strong>High implied volatility</strong> can indicate uncertainty or risk in the market, but it may also signal that options are relatively expensive. Conversely, low implied volatility might suggest lower expected movement but can also signal undervalued options.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>Common Options Trading Strategies</h2>
+      <p>
+        Traders use various strategies to capitalize on their market views and manage risk. Some common strategies include:
+      </p>
+      <ul>
+        <li>
+          <strong>Long Straddle:</strong> Buying a call and a put with the same strike and expiration. Profits from large moves in either direction.
+        </li>
+        <li>
+          <strong>Long Strangle:</strong> Buying an out-of-the-money call and put. Cheaper than a straddle but requires a larger move.
+        </li>
+        <li>
+          <strong>Bull Call Spread:</strong> Buying a call and selling a call at a higher strike to limit cost. Profits if the price rises moderately.
+        </li>
+        <li>
+          <strong>Bear Put Spread:</strong> Buying a put and selling a put at a lower strike. Profits if the price falls moderately.
+        </li>
+        <li>
+          <strong>Butterfly Spread:</strong> Combining multiple calls or puts to profit from low volatility; has limited risk and reward.
+        </li>
+      </ul>
+      <p>
+        Each strategy has a unique payoff profile. For example, a long straddle's payoff diagram resembles a "V" shape, while a bull call spread’s payoff is capped.
+      </p>
+    </div>
   </div>
 
   <script>
     document.getElementById('ticker-form').addEventListener('submit', function(e) {
       e.preventDefault();
       var ticker = document.getElementById('ticker').value;
-      
       var formData = new URLSearchParams();
       formData.append('ticker', ticker);
 
@@ -137,21 +180,15 @@
       })
       .then(response => response.json())
       .then(data => {
-        console.log("Data received from server:", data);
-        if(data.error) {
-          alert(data.error);
-          return;
-        }
-
-        // Compute axis ranges from the grid data to avoid auto–range artifacts (e.g. unwanted 0 ticks)
+        if(data.error) { alert(data.error); return; }
+        
+        // Compute global axis ranges from the common grid
         var minStrike = Math.min.apply(null, data.grid_x);
         var maxStrike = Math.max.apply(null, data.grid_x);
         var minDays = Math.min.apply(null, data.grid_y);
         var maxDays = Math.max.apply(null, data.grid_y);
 
-        // -------------------------------
-        // 1. 3D Surface Plot for Calls
-        // -------------------------------
+        // 3D Surface Plot for Calls
         if(data.calls_Z) {
           var traceCalls = {
             x: data.grid_x,
@@ -171,7 +208,7 @@
             scene: {
               xaxis: { title: 'Strike Price', color: 'white', gridcolor: '#333', range: [minStrike, maxStrike] },
               yaxis: { title: 'Days to Expiration', color: 'white', gridcolor: '#333', range: [minDays, maxDays] },
-              zaxis: { title: 'IV (%)', color: 'white', gridcolor: '#333' },
+              zaxis: { title: 'IV (%)', color: 'white', gridcolor: '#333', autorange: true },
               bgcolor: '#121212'
             }
           };
@@ -180,9 +217,7 @@
           document.getElementById('chart-calls').innerHTML = "<p>No calls data available.</p>";
         }
 
-        // -------------------------------
-        // 2. 3D Surface Plot for Puts
-        // -------------------------------
+        // 3D Surface Plot for Puts
         if(data.puts_Z) {
           var tracePuts = {
             x: data.grid_x,
@@ -202,7 +237,7 @@
             scene: {
               xaxis: { title: 'Strike Price', color: 'white', gridcolor: '#333', range: [minStrike, maxStrike] },
               yaxis: { title: 'Days to Expiration', color: 'white', gridcolor: '#333', range: [minDays, maxDays] },
-              zaxis: { title: 'IV (%)', color: 'white', gridcolor: '#333' },
+              zaxis: { title: 'IV (%)', color: 'white', gridcolor: '#333', autorange: true },
               bgcolor: '#121212'
             }
           };
@@ -211,16 +246,13 @@
           document.getElementById('chart-puts').innerHTML = "<p>No puts data available.</p>";
         }
 
-        // -------------------------------
-        // 3. 2D Volatility Smile Plot for Calls
-        // -------------------------------
+        // 2D Volatility Smile Plot for Calls
         if(data.calls_time && data.calls_time.length > 0) {
-          // Determine median expiration for calls
+          // Use median expiration from calls (within a tolerance)
           var callsSorted = data.calls_time.slice().sort((a, b) => a - b);
           var medianCalls = callsSorted[Math.floor(callsSorted.length / 2)];
-          var tolerance = 5; // days tolerance
-          var smileCalls_strike = [];
-          var smileCalls_iv = [];
+          var tolerance = 5; // days
+          var smileCalls_strike = [], smileCalls_iv = [];
           for(var i = 0; i < data.calls_time.length; i++){
             if(Math.abs(data.calls_time[i] - medianCalls) < tolerance){
               smileCalls_strike.push(data.calls_strike[i]);
@@ -249,16 +281,12 @@
           document.getElementById('smile-chart-calls').innerHTML = "<p>No calls data available.</p>";
         }
 
-        // -------------------------------
-        // 4. 2D Volatility Smile Plot for Puts
-        // -------------------------------
+        // 2D Volatility Smile Plot for Puts
         if(data.puts_time && data.puts_time.length > 0) {
-          // Determine median expiration for puts
           var putsSorted = data.puts_time.slice().sort((a, b) => a - b);
           var medianPuts = putsSorted[Math.floor(putsSorted.length / 2)];
-          var tolerance = 5; // days tolerance
-          var smilePuts_strike = [];
-          var smilePuts_iv = [];
+          var tolerance = 5; // days
+          var smilePuts_strike = [], smilePuts_iv = [];
           for(var i = 0; i < data.puts_time.length; i++){
             if(Math.abs(data.puts_time[i] - medianPuts) < tolerance){
               smilePuts_strike.push(data.puts_strike[i]);
@@ -287,9 +315,7 @@
           document.getElementById('smile-chart-puts').innerHTML = "<p>No puts data available.</p>";
         }
       })
-      .catch(error => {
-        console.error('Error:', error);
-      });
+      .catch(error => { console.error('Error:', error); });
     });
   </script>
 </body>

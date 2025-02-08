@@ -60,22 +60,18 @@ def vol_surface():
         return jsonify({'error': 'Ticker not found or no data available'}), 404
 
     S = hist['Close'].iloc[-1]
-    r = 0.01  # risk-free rate (adjust as needed)
+    r = 0.01  # risk-free rate
 
     # Separate arrays for calls and puts
-    calls_strikes = []
-    calls_times = []  # days to expiration
-    calls_ivs = []
-    puts_strikes = []
-    puts_times = []
-    puts_ivs = []
+    calls_strikes, calls_times, calls_ivs = [], [], []
+    puts_strikes, puts_times, puts_ivs = [], [], []
 
-    # Loop through available option expiration dates
+    # Loop through available expiration dates
     for exp in stock.options:
         expiration_date = pd.to_datetime(exp)
-        # Compute days to expiration (at least 1 day)
+        # Compute days to expiration (minimum 1 day)
         days = max((expiration_date - pd.Timestamp.now()).days, 1)
-        T_years = days / 365.0  # time in years for pricing
+        T_years = days / 365.0  # for pricing calculations
 
         try:
             chain = stock.option_chain(exp)
@@ -111,29 +107,31 @@ def vol_surface():
     if not (calls_strikes or puts_strikes):
         return jsonify({'error': 'Insufficient data to generate surface.'}), 400
 
-    # Create a common grid for interpolation using the union of calls and puts data
+    # Use the union of calls and puts for a common grid
     all_strikes = (calls_strikes if calls_strikes else []) + (puts_strikes if puts_strikes else [])
     all_times = (calls_times if calls_times else []) + (puts_times if puts_times else [])
     grid_x = np.linspace(min(all_strikes), max(all_strikes), num=50)
     grid_y = np.linspace(min(all_times), max(all_times), num=50)
     X, Y = np.meshgrid(grid_x, grid_y)
 
-    # Interpolate a smooth surface for calls
+    # Interpolate the smooth IV surface for calls and clip negative values
     if calls_strikes:
         calls_Z = griddata((calls_strikes, calls_times), calls_ivs, (X, Y), method='cubic')
         nan_mask = np.isnan(calls_Z)
         if np.any(nan_mask):
             calls_Z[nan_mask] = griddata((calls_strikes, calls_times), calls_ivs, (X, Y), method='nearest')[nan_mask]
+        calls_Z = np.maximum(calls_Z, 0)  # remove negative values
         calls_Z_list = calls_Z.tolist()
     else:
         calls_Z_list = None
 
-    # Interpolate a smooth surface for puts
+    # Interpolate the smooth IV surface for puts and clip negative values
     if puts_strikes:
         puts_Z = griddata((puts_strikes, puts_times), puts_ivs, (X, Y), method='cubic')
         nan_mask = np.isnan(puts_Z)
         if np.any(nan_mask):
             puts_Z[nan_mask] = griddata((puts_strikes, puts_times), puts_ivs, (X, Y), method='nearest')[nan_mask]
+        puts_Z = np.maximum(puts_Z, 0)
         puts_Z_list = puts_Z.tolist()
     else:
         puts_Z_list = None
@@ -152,4 +150,4 @@ def vol_surface():
     })
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
