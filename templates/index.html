@@ -3,22 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <title>Troy's Implied Volatility Surface Visualizer</title>
-  <!-- Include Plotly JS library -->
+  
+  <!-- Include the Plotly JS library to render interactive graphs -->
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-  <!-- Load MathJax for rendering LaTeX formulas -->
+  
+  <!-- Load Polyfill to support ES6 features in older browsers -->
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  
+  <!-- Load MathJax for rendering LaTeX formulas for mathematical expressions -->
   <script id="MathJax-script" async
     src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
   </script>
+  
   <style>
+    /* Basic styling for the entire page */
     body { 
-      background-color: #121212; 
-      color: #e0e0e0; 
+      background-color: #121212; /* Dark background for a Bloomberg terminal feel */
+      color: #e0e0e0;            /* Light text color */
       font-family: Arial, sans-serif; 
       margin: 20px; 
       line-height: 1.6;
     }
+    /* Headings styling */
     h1, h2, h3, h4 { color: #e0e0e0; }
+    
+    /* Styling for the form */
     form { margin-bottom: 20px; }
     input, button {
       padding: 10px;
@@ -34,12 +43,16 @@
       cursor: pointer;
     }
     button:hover { background-color: #005fa3; }
+    
+    /* Styling for containers holding graphs */
     .graph-container { margin-bottom: 40px; }
     .graph-title {
       margin-bottom: 10px;
       font-size: 20px;
       text-align: center;
     }
+    
+    /* Styling for the explanation section (educational content) */
     .explanation {
       margin-top: 20px;
       padding: 20px;
@@ -50,35 +63,43 @@
   </style>
 </head>
 <body>
+  <!-- Main page title -->
   <h1>Troy's Implied Volatility Surface Visualizer</h1>
+  
+  <!-- Ticker input form -->
   <form id="ticker-form">
     <label for="ticker">Enter Ticker Symbol:</label>
     <input type="text" id="ticker" name="ticker" placeholder="e.g., AAPL" required>
     <button type="submit">Submit</button>
   </form>
 
-  <!-- 3D Surface Graphs -->
+  <!-- Section for 3D IV surface graphs -->
   <div class="graph-container">
     <div class="graph-title">3D Implied Volatility Surface - Calls</div>
-    <div id="chart-calls" style="width:100%; height:600px;"></div>
+    <!-- This div will hold the 3D surface graph for call options -->
+    <div id="chart-calls" style="width:250%; height:800px;"></div>
   </div>
   <div class="graph-container">
     <div class="graph-title">3D Implied Volatility Surface - Puts</div>
-    <div id="chart-puts" style="width:100%; height:600px;"></div>
+    <!-- This div will hold the 3D surface graph for put options -->
+    <div id="chart-puts" style="width:250%; height:800px;"></div>
   </div>
 
-  <!-- 2D Volatility Smile Graphs -->
+  <!-- Section for 2D volatility smile graphs -->
   <div class="graph-container">
     <div class="graph-title">2D Volatility Smile - Calls</div>
+    <!-- This div will hold the 2D volatility smile graph for calls -->
     <div id="smile-chart-calls" style="width:100%; height:600px;"></div>
   </div>
   <div class="graph-container">
     <div class="graph-title">2D Volatility Smile - Puts</div>
+    <!-- This div will hold the 2D volatility smile graph for puts -->
     <div id="smile-chart-puts" style="width:100%; height:600px;"></div>
   </div>
 
   <!-- Professional Options Education Section -->
   <div class="explanation">
+    <!-- Section: Black–Scholes Model Explanation -->
     <div class="section">
       <h2>Options, Implied Volatility, and the Black–Scholes Model</h2>
       <p>
@@ -101,6 +122,7 @@
       </p>
     </div>
 
+    <!-- Section: Option Greeks Explanation -->
     <div class="section">
       <h2>Option Greeks</h2>
       <p>
@@ -128,6 +150,7 @@
       </ul>
     </div>
 
+    <!-- Section: Volatility Smile Explanation -->
     <div class="section">
       <h2>Volatility Smile and Its Implications</h2>
       <p>
@@ -138,6 +161,7 @@
       </p>
     </div>
 
+    <!-- Section: Common Options Trading Strategies -->
     <div class="section">
       <h2>Common Options Trading Strategies</h2>
       <p>
@@ -167,12 +191,16 @@
   </div>
 
   <script>
+    // JavaScript code to fetch IV surface data and render graphs
+
+    // Add event listener to the ticker form for submission
     document.getElementById('ticker-form').addEventListener('submit', function(e) {
-      e.preventDefault();
+      e.preventDefault();  // Prevent the form from reloading the page
       var ticker = document.getElementById('ticker').value;
       var formData = new URLSearchParams();
       formData.append('ticker', ticker);
 
+      // Send POST request to the /vol_surface endpoint
       fetch('/vol_surface', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -180,15 +208,18 @@
       })
       .then(response => response.json())
       .then(data => {
-        if(data.error) { alert(data.error); return; }
+        if(data.error) { 
+          alert(data.error); 
+          return; 
+        }
         
-        // Compute global axis ranges from the common grid
+        // Calculate common axis ranges for the 3D charts
         var minStrike = Math.min.apply(null, data.grid_x);
         var maxStrike = Math.max.apply(null, data.grid_x);
         var minDays = Math.min.apply(null, data.grid_y);
         var maxDays = Math.max.apply(null, data.grid_y);
 
-        // 3D Surface Plot for Calls
+        // Render the 3D Surface Plot for Calls if data is available
         if(data.calls_Z) {
           var traceCalls = {
             x: data.grid_x,
@@ -217,7 +248,7 @@
           document.getElementById('chart-calls').innerHTML = "<p>No calls data available.</p>";
         }
 
-        // 3D Surface Plot for Puts
+        // Render the 3D Surface Plot for Puts if data is available
         if(data.puts_Z) {
           var tracePuts = {
             x: data.grid_x,
@@ -246,12 +277,11 @@
           document.getElementById('chart-puts').innerHTML = "<p>No puts data available.</p>";
         }
 
-        // 2D Volatility Smile Plot for Calls
+        // Render the 2D Volatility Smile for Calls
         if(data.calls_time && data.calls_time.length > 0) {
-          // Use median expiration from calls (within a tolerance)
           var callsSorted = data.calls_time.slice().sort((a, b) => a - b);
           var medianCalls = callsSorted[Math.floor(callsSorted.length / 2)];
-          var tolerance = 5; // days
+          var tolerance = 5; // days tolerance
           var smileCalls_strike = [], smileCalls_iv = [];
           for(var i = 0; i < data.calls_time.length; i++){
             if(Math.abs(data.calls_time[i] - medianCalls) < tolerance){
@@ -281,11 +311,11 @@
           document.getElementById('smile-chart-calls').innerHTML = "<p>No calls data available.</p>";
         }
 
-        // 2D Volatility Smile Plot for Puts
+        // Render the 2D Volatility Smile for Puts
         if(data.puts_time && data.puts_time.length > 0) {
           var putsSorted = data.puts_time.slice().sort((a, b) => a - b);
           var medianPuts = putsSorted[Math.floor(putsSorted.length / 2)];
-          var tolerance = 5; // days
+          var tolerance = 5; // days tolerance
           var smilePuts_strike = [], smilePuts_iv = [];
           for(var i = 0; i < data.puts_time.length; i++){
             if(Math.abs(data.puts_time[i] - medianPuts) < tolerance){
