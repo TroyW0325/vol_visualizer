@@ -26,7 +26,7 @@ def black_scholes_put(S, K, T, r, sigma):
     return K * np.exp(-r * T) * norm.cdf(-d2) - S * norm.cdf(-d1)
 
 def implied_volatility_call(price, S, K, T, r):
-    """Compute implied volatility for a call option using Brent's method."""
+    """Invert the Black–Scholes call formula using Brent's method to compute implied volatility."""
     try:
         iv = brentq(lambda sigma: black_scholes_call(S, K, T, r, sigma) - price,
                       1e-6, 5.0, maxiter=500)
@@ -35,7 +35,7 @@ def implied_volatility_call(price, S, K, T, r):
         return None
 
 def implied_volatility_put(price, S, K, T, r):
-    """Compute implied volatility for a put option using Brent's method."""
+    """Invert the Black–Scholes put formula using Brent's method to compute implied volatility."""
     try:
         iv = brentq(lambda sigma: black_scholes_put(S, K, T, r, sigma) - price,
                       1e-6, 5.0, maxiter=500)
@@ -53,7 +53,7 @@ def vol_surface():
     if not ticker:
         return jsonify({'error': 'Ticker symbol is required'}), 400
 
-    # Retrieve ticker data via yfinance
+    # Retrieve ticker data using yfinance
     stock = yf.Ticker(ticker.upper())
     hist = stock.history(period='1d')
     if hist.empty:
@@ -62,16 +62,16 @@ def vol_surface():
     S = hist['Close'].iloc[-1]
     r = 0.01  # risk-free rate
 
-    # Arrays for calls and puts
+    # Separate arrays for calls and puts
     calls_strikes, calls_times, calls_ivs = [], [], []
     puts_strikes, puts_times, puts_ivs = [], [], []
 
-    # Loop over available expiration dates
+    # Loop through available expiration dates
     for exp in stock.options:
         expiration_date = pd.to_datetime(exp)
-        # Calculate days to expiration (minimum 1 day)
+        # Compute days to expiration (minimum 1 day)
         days = max((expiration_date - pd.Timestamp.now()).days, 1)
-        T_years = days / 365.0
+        T_years = days / 365.0  # for pricing calculations
 
         try:
             chain = stock.option_chain(exp)
@@ -80,7 +80,7 @@ def vol_surface():
         except Exception:
             continue
 
-        # Process call options
+        # Process calls
         for _, row in calls.iterrows():
             K = row['strike']
             price = row['lastPrice']
@@ -90,9 +90,9 @@ def vol_surface():
             if iv is not None:
                 calls_strikes.append(K)
                 calls_times.append(days)
-                calls_ivs.append(iv * 100)  # Express in percentage
+                calls_ivs.append(iv * 100)  # convert to percentage
 
-        # Process put options
+        # Process puts
         for _, row in puts.iterrows():
             K = row['strike']
             price = row['lastPrice']
@@ -107,25 +107,25 @@ def vol_surface():
     if not (calls_strikes or puts_strikes):
         return jsonify({'error': 'Insufficient data to generate surface.'}), 400
 
-    # Create a common grid using the union of calls and puts
+    # Use the union of calls and puts for a common grid
     all_strikes = (calls_strikes if calls_strikes else []) + (puts_strikes if puts_strikes else [])
     all_times = (calls_times if calls_times else []) + (puts_times if puts_times else [])
     grid_x = np.linspace(min(all_strikes), max(all_strikes), num=50)
     grid_y = np.linspace(min(all_times), max(all_times), num=50)
     X, Y = np.meshgrid(grid_x, grid_y)
 
-    # Interpolate 3D IV surface for calls and clip negative values
+    # Interpolate the smooth IV surface for calls and clip negative values
     if calls_strikes:
         calls_Z = griddata((calls_strikes, calls_times), calls_ivs, (X, Y), method='cubic')
         nan_mask = np.isnan(calls_Z)
         if np.any(nan_mask):
             calls_Z[nan_mask] = griddata((calls_strikes, calls_times), calls_ivs, (X, Y), method='nearest')[nan_mask]
-        calls_Z = np.maximum(calls_Z, 0)  # ensure no negative volatility
+        calls_Z = np.maximum(calls_Z, 0)  # remove negative values
         calls_Z_list = calls_Z.tolist()
     else:
         calls_Z_list = None
 
-    # Interpolate 3D IV surface for puts and clip negative values
+    # Interpolate the smooth IV surface for puts and clip negative values
     if puts_strikes:
         puts_Z = griddata((puts_strikes, puts_times), puts_ivs, (X, Y), method='cubic')
         nan_mask = np.isnan(puts_Z)
