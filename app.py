@@ -137,6 +137,7 @@ def vol_surface():
         puts_Z_list = None
 
     return jsonify({
+        'currentPrice': S,
         'grid_x': grid_x.tolist(),
         'grid_y': grid_y.tolist(),
         'calls_Z': calls_Z_list,

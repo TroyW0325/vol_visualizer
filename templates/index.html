@@ -78,6 +78,9 @@
     <button type="submit">Submit</button>
   </form>
 
+  <!-- Container for displaying the current stock price -->
+  <div id="current-price" style="font-size: 18px; margin-bottom: 20px;"></div>
+
   <!-- 3D IV Surface Graphs -->
   <div class="graph-container">
     <div class="graph-title">3D Implied Volatility Surface - Calls</div>
@@ -208,6 +211,10 @@
           return; 
         }
         
+        // Display the current stock price
+        document.getElementById('current-price').innerHTML =
+          "Current Stock Price: $" + Number(data.currentPrice).toFixed(2);
+
         // Compute common axis ranges for the 3D charts
         var minStrike = Math.min.apply(null, data.grid_x);
         var maxStrike = Math.max.apply(null, data.grid_x);
