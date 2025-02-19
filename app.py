@@ -6,6 +6,7 @@ from scipy.stats import norm
 from scipy.optimize import brentq
 from scipy.interpolate import griddata
 from datetime import datetime
+from yfinance.exceptions import YFRateLimitError  # Import the rate limit exception
 
 app = Flask(__name__)
 
@@ -53,9 +54,15 @@ def vol_surface():
     if not ticker:
         return jsonify({'error': 'Ticker symbol is required'}), 400
 
-    # Retrieve ticker data using yfinance
-    stock = yf.Ticker(ticker.upper())
-    hist = stock.history(period='1d')
+    try:
+        # Retrieve ticker data using yfinance
+        stock = yf.Ticker(ticker.upper())
+        hist = stock.history(period='1d')
+    except YFRateLimitError:
+        return jsonify({'error': 'Rate limit exceeded. Please try again later.'}), 429
+    except Exception as e:
+        return jsonify({'error': f'Error fetching data: {str(e)}'}), 500
+
     if hist.empty:
         return jsonify({'error': 'Ticker not found or no data available'}), 404
 
