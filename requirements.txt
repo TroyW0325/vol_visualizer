@@ -1,6 +1,1 @@
-Flask
-gunicorn
-yfinance
-numpy
-pandas
-scipy
+yfinance==0.2.54
