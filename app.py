@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect
 import yfinance as yf
 import numpy as np
 import pandas as pd
@@ -6,9 +6,14 @@ from scipy.stats import norm
 from scipy.optimize import brentq
 from scipy.interpolate import griddata
 from datetime import datetime
-from yfinance.exceptions import YFRateLimitError  # Import the rate limit exception
+from yfinance.exceptions import YFRateLimitError
 
 app = Flask(__name__)
+
+@app.before_request
+def force_https():
+    if request.headers.get('X-Forwarded-Proto') == 'http':
+        return redirect(request.url.replace('http://', 'https://'), code=301)
 
 def black_scholes_call(S, K, T, r, sigma):
     """Calculate the Black–Scholes price for a call option."""
